@@ -1,24 +1,23 @@
-import firebase from "firebase/compat";
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
 
-const settings = { timestampsInSnapshots: true };
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
-const config = {
-  //  put your values here
-  apiKey: "AIzaSyD3Fq13YXBlsaWLVvFmdxEz_HRvjWYVtIw",
-  authDomain: "practical-3-3a28a.firebaseapp.com",
-  projectId: "practical-3-3a28a",
-  storageBucket: "practical-3-3a28a.appspot.com",
-  messagingSenderId: "837707451010",
-  appId: "1:837707451010:web:f90e49eab511c880d9029b",
-  measurementId: "G-S202KNNTW5",
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyB4yf_D0GIfG6PQmtqhDk4T6IcjuWzmqzM",
+  authDomain: "authentication-9a558.firebaseapp.com",
+  projectId: "authentication-9a558",
+  storageBucket: "authentication-9a558.appspot.com",
+  messagingSenderId: "50710064530",
+  appId: "1:50710064530:web:b246b32011ac29e854654b",
+  measurementId: "G-BTV0NYGG3H"
 };
 
 // Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-firebase.initializeApp(config);
-
-// export Firebase so it can be used elsewhere
-
-const FireBase = firebase.initializeApp(config);
-
-export default firebase;
+export default db;
