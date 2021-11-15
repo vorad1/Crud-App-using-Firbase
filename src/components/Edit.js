@@ -24,7 +24,7 @@ function Edit() {
       setAuthor(filteredData.author);
     }
     fetchData();
-    
+    // eslint-disable-next-line
   }, []);
 
   const handleEdit = () => {
