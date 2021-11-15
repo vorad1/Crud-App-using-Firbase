@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import firebase from '../Firebase';
+import firebase from '../db/Firebase';
 import { Link } from 'react-router-dom';
 
 class Edit extends Component {
