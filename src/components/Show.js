@@ -1,65 +1,76 @@
-import React, { Component } from 'react';
-import firebase from '../db/Firebase';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { collection, getDocs, doc, deleteDoc } from "firebase/firestore";
+import db from "../db/Firebase";
 
-class Show extends Component {
+function Show() {
+  const [board, setBoard] = useState({});
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      board: {},
-      key: ''
-    };
-  }
+  let id = window.location.pathname.slice(6);
+  const data = [];
+  useEffect(() => {
+    async function fetchData() {
+      const querySnapshot = await getDocs(collection(db, "boards"));
+      querySnapshot.forEach((doc) => {
+        data.push({ key: doc.id, ...doc.data() });
+      });
+      const filteredData = data.filter((board) => board.key === id);
 
-  componentDidMount() {
-    const ref = firebase.firestore().collection('boards').doc(this.props.match.params.id);
-    ref.get().then((doc) => {
-      if (doc.exists) {
-        this.setState({
-          board: doc.data(),
-          key: doc.id,
-          isLoading: false
-        });
-      } else {
-        console.log("No such document!");
-      }
-    });
-  }
+      setBoard(...filteredData);
+    }
+    fetchData();
+    // eslint-disable-next-line
+  }, []);
 
-  delete(id){
-    firebase.firestore().collection('boards').doc(id).delete().then(() => {
-      console.log("Document successfully deleted!");
-      this.props.history.push("/")
-    }).catch((error) => {
-      console.error("Error removing document: ", error);
-    });
-  }
+  const handleDelete = () => {
+    deleteDoc(doc(db, "boards", id))
+      .then(() => {
+        navigate("/");
+      })
+      .catch((error) => {
+        console.error("Error removing document: ", error);
+      });
+  };
 
-  render() {
-    return (
-      <div class="container">
-        <div class="panel panel-default">
-          <div class="panel-heading">
-          <h4><Link to="/">Board List</Link></h4>
-            <h3 class="panel-title">
-              {this.state.board.title}
-            </h3>
-          </div>
-          <div class="panel-body">
-            <dl>
-              <dt>Description:</dt>
-              <dd>{this.state.board.description}</dd>
-              <dt>Author:</dt>
-              <dd>{this.state.board.author}</dd>
-            </dl>
-            <Link to={`/edit/${this.state.key}`} class="btn btn-success">Edit</Link>&nbsp;
-            <button onClick={this.delete.bind(this, this.state.key)} class="btn btn-danger">Delete</button>
-          </div>
+  let navigate = useNavigate();
+  return (
+    <div className="container">
+      <div className="panel panel-default">
+        <div className="panel-heading">
+          <h4>
+            <button
+              onClick={() => navigate(`/`)}
+              type="button"
+              className="btn btn-link"
+            >
+              Board List
+            </button>
+          </h4>
+          <h3 className="panel-title">{board.title}</h3>
+        </div>
+        <div className="panel-body">
+          <dl>
+            <dt>Description:</dt>
+            <dd>{board.description}</dd>
+            <dt>Author:</dt>
+            <dd>{board.author}</dd>
+          </dl>
+          <button
+            onClick={() => navigate(`/edit/${board.key}`)}
+            type="button"
+            className="btn btn-success"
+          >
+            {" "}
+            Edit
+          </button>
+          &nbsp;
+          <button onClick={() => handleDelete()} className="btn btn-danger">
+            Delete
+          </button>
         </div>
       </div>
-    );
-  }
+    </div>
+  );
 }
 
 export default Show;

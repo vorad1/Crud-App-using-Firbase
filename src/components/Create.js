@@ -1,79 +1,103 @@
-import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
-import firebase from '../db/Firebase';
-import { Link } from 'react-router-dom';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import db from "../db/Firebase";
+import { collection, addDoc } from "firebase/firestore";
 
-class Create extends Component {
+function Create() {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [author, setAuthor] = useState("");
 
-  constructor() {
-    super();
-    this.ref = firebase.firestore().collection('boards');
-    this.state = {
-      title: '',
-      description: '',
-      author: ''
-    };
-  }
-  onChange = (e) => {
-    const state = this.state
-    state[e.target.name] = e.target.value;
-    this.setState(state);
-  }
+  let navigate = useNavigate();
 
-  onSubmit = (e) => {
-    e.preventDefault();
+  const addBook = () => {
+    if (title === "" || description === "" || author === "") {
+      alert("All fields are required");
+    } else {
+      addDoc(collection(db, "boards"), {
+        title: title,
+        description: description,
+        author: author,
+      })
+        .then(() => {
+          navigate("/");
+        })
+        .catch((error) => {
+          console.error("Error removing document: ", error);
+        });
+    }
+  };
 
-    const { title, description, author } = this.state;
-
-    this.ref.add({
-      title,
-      description,
-      author
-    }).then((docRef) => {
-      this.setState({
-        title: '',
-        description: '',
-        author: ''
-      });
-      this.props.history.push("/")
-    })
-    .catch((error) => {
-      console.error("Error adding document: ", error);
-    });
-  }
-
-  render() {
-    const { title, description, author } = this.state;
-    return (
-      <div class="container">
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h3 class="panel-title">
-              ADD BOARD
-            </h3>
-          </div>
-          <div class="panel-body">
-            <h4><Link to="/" class="btn btn-primary">Book List</Link></h4>
-            <form onSubmit={this.onSubmit}>
-              <div class="form-group">
-                <label for="title">Title:</label>
-                <input type="text" class="form-control" name="title" value={title} onChange={this.onChange} placeholder="Title" />
-              </div>
-              <div class="form-group">
-                <label for="description">Description:</label>
-                <textArea class="form-control" name="description" onChange={this.onChange} placeholder="Description" cols="80" rows="3">{description}</textArea>
-              </div>
-              <div class="form-group">
-                <label for="author">Author:</label>
-                <input type="text" class="form-control" name="author" value={author} onChange={this.onChange} placeholder="Author" />
-              </div>
-              <button type="submit" class="btn btn-success">Submit</button>
-            </form>
-          </div>
+  return (
+    <div className="container">
+      <div className="panel panel-default">
+        <div className="panel-heading">
+          <h3 className="panel-title">ADD BOOK</h3>
+        </div>
+        <div className="panel-body">
+          <h4>
+            <button
+              onClick={() => {
+                navigate("/");
+              }}
+              className="btn btn-primary"
+            >
+              Book List
+            </button>
+          </h4>
+          <form>
+            <div className="form-group">
+              <label htmlFor="title">Title:</label>
+              <input
+                id={title}
+                type="text"
+                className="form-control"
+                name="title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Title"
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="description">Description:</label>
+              <textarea
+                id={description}
+                className="form-control"
+                name="description"
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Description"
+                cols="80"
+                rows="3"
+                value={description}
+              ></textarea>
+            </div>
+            <div className="form-group">
+              <label htmlFor="author">Author:</label>
+              <input
+                id={author}
+                type="text"
+                className="form-control"
+                name="author"
+                value={author}
+                onChange={(e) => setAuthor(e.target.value)}
+                placeholder="Author"
+              />
+            </div>
+            <button
+              type="submit"
+              onClick={(e) => {
+                e.preventDefault();
+                addBook();
+              }}
+              className="btn btn-success"
+            >
+              Submit
+            </button>
+          </form>
         </div>
       </div>
-    );
-  }
+    </div>
+  );
 }
 
 export default Create;
